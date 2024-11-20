@@ -1,0 +1,8 @@
+<div *ngIf="document">
+  <button (click)="goBack()" class="back-button">Back</button>
+  <h1>{{ document.name }}</h1>
+  <div *ngFor="let page of document.pages" class="page">
+    <img [src]="page.imageUrl" [alt]="'Page ' + page.number" />
+  </div>
+</div>
+<div *ngIf="!document">Loading...</div>
