@@ -1,8 +1,28 @@
-<div *ngIf="document">
-  <button (click)="goBack()" class="back-button">Back</button>
+<div *ngIf="document" class="viewer">
+  <button mat-flat-button type="button" (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+    Back
+  </button>
   <h1>{{ document.name }}</h1>
-  <div *ngFor="let page of document.pages" class="page">
-    <img [src]="page.imageUrl" [alt]="'Page ' + page.number" />
+  <div class="zoom-controls">
+    <button mat-icon-button (click)="zoomIn()">
+      <mat-icon>zoom_in</mat-icon>
+    </button>
+    <button mat-icon-button (click)="zoomOut()">
+      <mat-icon>zoom_out</mat-icon>
+    </button>
+    <button mat-button (click)="resetZoom()"><mat-icon>replay</mat-icon> Reset</button>
+  </div>
+  <div class="content" [style.transform]="zoomStyle">
+    @for ( page of document.pages; track page) {
+    <div class="page">
+      <img
+        [src]="page.imageUrl"
+        [alt]="'Page ' + page.number"
+        [style.width.%]="zoomLevel"
+      />
+    </div>
+    }
   </div>
 </div>
 <div *ngIf="!document">Loading...</div>

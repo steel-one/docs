@@ -1,5 +1,8 @@
-import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 import { RouterLink } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { DocumentService, IDocument } from '../services/document.service';
@@ -7,7 +10,7 @@ import { DocumentService, IDocument } from '../services/document.service';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, NgFor, NgIf, AsyncPipe],
+  imports: [RouterLink, AsyncPipe, MatButtonModule, MatIconModule, MatListModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
