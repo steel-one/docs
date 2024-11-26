@@ -44,7 +44,7 @@
   position: absolute;
   border: 1px solid white;
   color: white;
-  background: #c64184;
+  background: #9f2f67;
   padding: 5px;
   cursor: move;
   z-index: 1;
@@ -62,4 +62,9 @@
 .image-annotation img {
   max-width: 100px;
   max-height: 100px;
+}
+
+mat-error {
+  color: rgb(255, 157, 157);
+  font-size: 12px;
 }

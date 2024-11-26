@@ -1,8 +1,11 @@
 import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule, Location, NgIf } from '@angular/common';
 import { Component, HostListener, NgZone, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute } from '@angular/router';
 import { IAnnotation, IDocument } from '../models/document';
 import { DocumentService } from '../services/document.service';
@@ -14,7 +17,16 @@ const DEFAULT_ZOOM_LEVEL = 10;
   templateUrl: './document-viewer.component.html',
   styleUrls: ['./document-viewer.component.scss'],
   standalone: true,
-  imports: [NgIf, MatIconModule, MatButtonModule, CommonModule, DragDropModule],
+  imports: [
+    NgIf,
+    MatIconModule,
+    MatButtonModule,
+    CommonModule,
+    DragDropModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+  ],
 })
 export class DocumentViewerComponent implements OnInit {
   document: IDocument | null = null;
@@ -22,12 +34,14 @@ export class DocumentViewerComponent implements OnInit {
   zoomStyle = `scale(${this.zoomLevel})`;
   maxZoom = 25;
   minZoom = 0.5;
+  annotationForms: { [key: string]: FormGroup } = {};
 
   constructor(
     private route: ActivatedRoute,
     private location: Location,
     private documentService: DocumentService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
@@ -92,8 +106,12 @@ export class DocumentViewerComponent implements OnInit {
       content: 'New Annotation',
       top: 250,
       left: -315,
+      editing: false,
     };
     this.document!.annotations = [...this.document!.annotations!, annotation];
+    this.annotationForms[annotation.id] = this.fb.group({
+      content: [annotation.content, Validators.required],
+    });
   }
 
   addImageAnnotation(): void {
@@ -111,6 +129,7 @@ export class DocumentViewerComponent implements OnInit {
     const index = this.document!.annotations!.indexOf(annotation);
     if (index > -1) {
       this.document!.annotations!.splice(index, 1);
+      delete this.annotationForms[annotation.id];
     }
   }
 
@@ -123,5 +142,21 @@ export class DocumentViewerComponent implements OnInit {
     const { x, y } = event.source.getFreeDragPosition();
     annotation.top = y;
     annotation.left = x;
+  }
+
+  editAnnotation(annotation: IAnnotation): void {
+    annotation.editing = true;
+    const form = this.annotationForms[annotation.id];
+    if (form) {
+      form.setValue({ content: annotation.content });
+    }
+  }
+
+  stopEditing(annotation: IAnnotation): void {
+    const form = this.annotationForms[annotation.id];
+    if (form && form.valid) {
+      annotation.content = form.value.content;
+      annotation.editing = false;
+    }
   }
 }

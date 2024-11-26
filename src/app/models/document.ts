@@ -30,6 +30,7 @@ export interface IAnnotation {
   content: string;
   top: number;
   left: number;
+  editing?: boolean;
 }
 
 export interface IDocument {

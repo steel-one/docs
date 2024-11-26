@@ -40,8 +40,31 @@
     [cdkDragFreeDragPosition]="{ x: annotation.left, y: annotation.top }"
     (cdkDragEnded)="onAnnotationDragEnd(annotation, $event)"
   >
-    <div *ngIf="annotation.type === 'text'" class="text-annotation">
-      {{ annotation.content }}
+    <div
+      *ngIf="annotation.type === 'text'"
+      class="text-annotation"
+      (dblclick)="editAnnotation(annotation)"
+    >
+      <form [formGroup]="annotationForms[annotation.id]" *ngIf="annotation.editing">
+        <mat-form-field *ngIf="annotation.editing">
+          <mat-label>Annotation</mat-label>
+          <input
+            matInput
+            type="text"
+            *ngIf="annotation.editing"
+            formControlName="content"
+            (blur)="stopEditing(annotation)"
+            required
+          />
+          <mat-error
+            *ngIf="annotationForms[annotation.id].get('content')?.hasError('required')"
+          >
+            Required
+          </mat-error>
+        </mat-form-field>
+      </form>
+
+      <span *ngIf="!annotation.editing">{{ annotation.content }}</span>
       <button mat-icon-button (click)="removeAnnotation(annotation)">
         <mat-icon>delete</mat-icon>
       </button>
