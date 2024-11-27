@@ -1,6 +1,13 @@
 import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule, Location, NgIf } from '@angular/common';
-import { Component, HostListener, NgZone, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  NgZone,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,6 +42,9 @@ export class DocumentViewerComponent implements OnInit {
   maxZoom = 25;
   minZoom = 0.5;
   annotationForms: { [key: string]: FormGroup } = {};
+  selectedImage: string | ArrayBuffer | null = null;
+
+  @ViewChild('fileInput') fileInput!: ElementRef;
 
   constructor(
     private route: ActivatedRoute,
@@ -48,11 +58,22 @@ export class DocumentViewerComponent implements OnInit {
     const docId = this.route.snapshot.paramMap.get('id') || '';
     this.documentService.getDocumentById(docId).subscribe((doc) => {
       this.document = doc;
+      this.initializeAnnotationForms();
     });
     const savedZoom = localStorage.getItem('zoomLevel');
     if (savedZoom) {
       this.zoomLevel = parseFloat(savedZoom);
       this.updateZoomStyle();
+    }
+  }
+
+  initializeAnnotationForms(): void {
+    if (this.document && this.document.annotations) {
+      this.document.annotations.forEach((annotation) => {
+        this.annotationForms[annotation.id] = this.fb.group({
+          content: [annotation.content, Validators.required],
+        });
+      });
     }
   }
 
@@ -114,17 +135,6 @@ export class DocumentViewerComponent implements OnInit {
     });
   }
 
-  addImageAnnotation(): void {
-    const annotation: IAnnotation = {
-      id: Math.random().toString(36).substr(2, 9),
-      type: 'image',
-      content: 'src/assets/annotation-example.png',
-      top: 250,
-      left: -315,
-    };
-    this.document!.annotations = [...this.document!.annotations!, annotation];
-  }
-
   removeAnnotation(annotation: IAnnotation): void {
     const index = this.document!.annotations!.indexOf(annotation);
     if (index > -1) {
@@ -158,5 +168,37 @@ export class DocumentViewerComponent implements OnInit {
       annotation.content = form.value.content;
       annotation.editing = false;
     }
+  }
+
+  addImageAnnotation(): void {
+    if (this.selectedImage) {
+      const annotation: IAnnotation = {
+        id: Math.random().toString(36).substr(2, 9),
+        type: 'image',
+        content: this.selectedImage as string,
+        top: 100,
+        left: 100,
+      };
+      this.document!.annotations.push(annotation);
+      this.selectedImage = null;
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          this.selectedImage = e.target.result;
+          this.addImageAnnotation();
+        }
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
   }
 }

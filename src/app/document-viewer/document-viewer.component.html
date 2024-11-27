@@ -14,10 +14,17 @@
     <button mat-button (click)="resetZoom()"><mat-icon>replay</mat-icon> Reset</button>
   </div>
   <div class="annotation-controls">
+    <input
+      hidden
+      type="file"
+      #fileInput
+      (change)="onFileSelected($event)"
+      accept="image/*"
+    />
     <button mat-raised-button color="primary" (click)="addTextAnnotation()">
       Add Text Annotation
     </button>
-    <button mat-raised-button color="primary" (click)="addImageAnnotation()">
+    <button mat-raised-button color="primary" (click)="triggerFileInput()">
       Add Image Annotation
     </button>
     <button mat-raised-button color="accent" (click)="saveAnnotations()">Save</button>
@@ -70,10 +77,14 @@
       </button>
     </div>
     <div *ngIf="annotation.type === 'image'" class="image-annotation">
-      <img [src]="annotation.content" alt="Annotation Image" />
-      <button mat-icon-button (click)="removeAnnotation(annotation)">
-        <mat-icon>delete</mat-icon>
-      </button>
+      <div>
+        <img [src]="annotation.content" alt="Annotation Image" />
+      </div>
+      <div>
+        <button mat-icon-button (click)="removeAnnotation(annotation)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
     </div>
   </div>
   }
