@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, VERSION } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -16,6 +16,7 @@ import { DocumentService } from '../services/document.service';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {
+  version = VERSION.full;
   documents$ = new BehaviorSubject<IDocument[]>([]);
 
   constructor(private documentService: DocumentService) {
